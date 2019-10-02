@@ -54,16 +54,16 @@ function productsAddedDaysAgo(daysAgo) {
 
 productsAddedDaysAgo(5)
 
-function costPerCategory() {
-    knexInstance
-        .select('category')
-        .sum('price as total')
-        .from('shopping_list')
-        .groupBy('category')
-        .then(result => {
-            console.log('COST PER CATEGORY')
-            console.log(result)
-        })
-}
+// function costPerCategory() {
+//     knexInstance
+//         .select('category')
+//         .sum('price as total')
+//         .from('shopping_list')
+//         .groupBy('category')
+//         .then(result => {
+//             console.log('COST PER CATEGORY')
+//             console.log(result)
+//         })
+// }
 
-costPerCategory()
+// costPerCategory()

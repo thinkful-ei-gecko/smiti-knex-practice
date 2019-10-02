@@ -1,60 +1,33 @@
 require('dotenv').config()
 const knex = require('knex')
+const ShoppingService = require('./shopping-list-service')
+
 
 const knexInstance = knex({
     client: 'pg',
     connection: process.env.DB_URL
 })
 
-console.log('knex and driver installed correctly');
-
-
-// function searchByProduceName(searchTerm) {
-//     knexInstance
-//         .select('product_id', 'name', 'price', 'category')
-//         .from('amazong_products')
-//         .where('name', 'ILIKE', `%${searchTerm}%`)
-//         .then(result => {
-//             console.log(result)
-//         })
-// }
-
-// searchByProduceName('screwdriver')
-
-/* function paginateProducts(page) {
-    const productsPerPage = 10
-    const offset = productsPerPage * (page - 1)
-    knexInstance
-        .select('product_id', 'name', 'price', 'category')
-        .from('amazong_products')
-        .limit(productsPerPage)
-        .offset(offset)
-        .then(result => {
-            console.log(result)
+ShoppingService.getAllShopping(knexInstance)
+    .then(items => console.log(items))
+    .then(() =>
+        ShoppingService.insertShopping(knexInstance, {
+            name: 'New Name',
+            price: '100.00',
+            checked: true,
+            category: 'Main',
+            date_added: new Date(),
         })
-}
-
-paginateProducts(2) */
-
-
-function mostPopularVideosForDays(days) {
-    knexInstance
-        .select('video_name', 'region')
-        .count('date_viewed AS views')
-        .where(
-            'date_viewed',
-            '>',
-            knexInstance.raw(`now() - '?? days'::INTERVAL`, days)
-        )
-        .from('whopipe_video_views')
-        .groupBy('video_name', 'region')
-        .orderBy([
-            { column: 'region', order: 'ASC' },
-            { column: 'views', order: 'DESC' },
-        ])
-        .then(result => {
-            console.log(result)
-        })
-}
-
-mostPopularVideosForDays(30)
+    )
+    .then(newShopping => {
+        console.log(newShopping)
+        return ShoppingService.updateShopping(
+            knexInstance,
+            newShopping.id,
+            { name: 'Updated name' }
+        ).then(() => ShoppingService.getById(knexInstance, newShopping.id))
+    })
+    .then(items => {
+        console.log(items)
+        return ShoppingService.deleteShopping(knexInstance, items.id)
+    })
